@@ -1,4 +1,5 @@
 "use strict"
+
 const aws = require("aws-sdk")
 let dynamodb = null
 let documentClient = null
@@ -72,17 +73,18 @@ async function readPage(pageTitle, content) {
       content: content
     }
   }
-  const page = documentClient.get(params, (err, data) => {
+  await documentClient.get(params, (err, data) => {
     if(err) {
       console.log(`Unable to read the page ${pageTitle}. Error JSON: `, JSON.stringify(err, null, 2))
     } else {
-      console.log(`Page ${pageTitle} found.`)
+      console.log(`Page ${pageTitle} found: `, JSON.stringify(data))
+      return JSON.stringify(data)
     }
   })
-
-  return page
 }
+
 async function updatePage(page) {}
+
 async function deletePage(pageId) {}
 
 module.exports = {
