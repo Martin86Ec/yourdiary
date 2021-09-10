@@ -1,10 +1,10 @@
 # Serverless Page Handler
 
-##Description
+## Description
 
- This is a serverless page handler, it recieves page information and do
- database changes.
+This is a serverless page handler, it recieves page information and do
+database changes.
 
-##How to use
+## How to use
  
- This lambda is configured by a SAM file in YML extension.
+This lambda is configured by a SAM file in YML extension.
