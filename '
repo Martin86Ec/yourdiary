@@ -93,28 +93,29 @@ async function readPage(pageTitle, content) {
   return { error, response }
 }
 
-async function updatePage(page, values) {
+async function updatePage(page) {
   let { error, response } = null
   const params = {
     TableName: "pages",
     Key: {
-      title: page.title,
-      content: page.content
+      title: pageTitle,
+      content: content
     },
     UpdateExpression: "set title = :t, content=:c",
     ExpressionAttributeValues: {
-      ":t": values.title, 
-      ":c": values.content
+      "t": page.title, 
+        ":p": page.content,
+        ":a":["Larry", "Moe", "Curly"]
     },
     ReturnValues:"UPDATED_NEW"
   }
   await documentClient.update(params, (err, data) => {
     if(err) {
       error = true
-      console.log(`Unable to update the page ${pageTitle}. Error JSON: `, JSON.stringify(err, null, 2))
+      console.log(`Unable to read the page ${pageTitle}. Error JSON: `, JSON.stringify(err, null, 2))
     } else {
       error = false
-      console.log(`Page ${pageTitle} updated: `, JSON.stringify(data))
+      console.log(`Page ${pageTitle} found: `, JSON.stringify(data))
     }
     response = data
   })
@@ -123,36 +124,11 @@ async function updatePage(page, values) {
 }
 
 async function deletePage(pageId) {
-  let { error, response } = null
-  const params = {
-    TableName: "pages",
-    Key: {
-      title: page.title,
-      content: page.content
-    },
-    conditionExpression: "title = :t",
-    ExpressionAttributeValues: {
-      ":t": values.title, 
-    },
-    ReturnValues:"UPDATED_NEW"
-  }
-  await documentClient.delete(params, (err, data) => {
-    if(err) {
-      error = true
-      console.log(`Unable to read the page ${pageTitle}. Error JSON: `, JSON.stringify(err, null, 2))
-    } else {
-      error = false
-      console.log(`Page ${pageTitle} deleted: `, JSON.stringify(data))
-    }
-    response = data
-  })
 
-  return { error, response }
 }
 
 module.exports = {
+  createTable,
   createPage,
-  readPage,
-  updatePage,
-  deletePage
+  readPage
 }
