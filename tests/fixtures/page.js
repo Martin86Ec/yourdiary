@@ -1,9 +1,13 @@
 "use strict"
 
-const pages = []
+const rawPage = {
+  title: "Raw Title",
+  content: "Raw content"
+}
 
 module.exports = {
-  createTable: async (page) => {
-    pages.push(page)
+  extendObject: (title, content) => {
+    let clone = Object.assign({}, rawPage)
+    return Object.assign(clone, { title, content })
   }
 }
