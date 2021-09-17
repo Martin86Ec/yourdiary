@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "node_modules/.bin/mocha tests/unit/*"
+    "utest": "node_modules/.bin/mocha tests/unit/*",
+    "itest": "$(docker run -d --name yourdiary_dynamodb -p 8000:8000 amazon/dynamodb-local || docker start your_diary || echo 'already started') && node_modules/.bin/mocha tests/integration/*"
   },
   "keywords": [],
   "author": "",

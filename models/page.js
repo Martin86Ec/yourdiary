@@ -4,19 +4,20 @@ const aws = require("aws-sdk")
 let dynamodb = null
 let documentClient = null
 
-if(!dynamodb) { aws.config.update({ region: "us-east-1",
+if(!dynamodb) {
+  aws.config.update({ region: "us-east-1",
     accessKeyId: "xxx",
     secretAccessKey: "xxx",
     endpoint: "http://localhost:8000"
   })
   dynamodb = new aws.DynamoDB()
   documentClient = new aws.DynamoDB.DocumentClient()
-}
+} 
 
-async function createTable() {
-  try{  
+async function createTable() { 
+  try{
     dynamodb.DescribeTableCommand("pages")
-    console.log("Pages table exists, aborting creation.", null, 2) 
+    console.log("Pages table exists, aborting creation.", null, 2)
     return
   } catch(err) {
     console.log("Creating table")
@@ -46,7 +47,6 @@ async function createTable() {
     }
   })
 }
-
 async function createPage(page) {
   let error, response = null
   const params = {
@@ -94,7 +94,7 @@ async function readPage(pageTitle, content) {
 }
 
 async function updatePage(page, values) {
-  let { error, response } = null
+  let error, response = null
   const params = {
     TableName: "pages",
     Key: {
@@ -103,7 +103,7 @@ async function updatePage(page, values) {
     },
     UpdateExpression: "set title = :t, content=:c",
     ExpressionAttributeValues: {
-      ":t": values.title, 
+      ":t": values.title,
       ":c": values.content
     },
     ReturnValues:"UPDATED_NEW"
@@ -111,10 +111,10 @@ async function updatePage(page, values) {
   await documentClient.update(params, (err, data) => {
     if(err) {
       error = true
-      console.log(`Unable to update the page ${pageTitle}. Error JSON: `, JSON.stringify(err, null, 2))
+      console.log(`Unable to update the page ${page.title}. Error JSON: `, JSON.stringify(err, null, 2))
     } else {
       error = false
-      console.log(`Page ${pageTitle} updated: `, JSON.stringify(data))
+      console.log(`Page ${page.title} updated: `, JSON.stringify(data))
     }
     response = data
   })
@@ -122,8 +122,8 @@ async function updatePage(page, values) {
   return { error, response }
 }
 
-async function deletePage(pageId) {
-  let { error, response } = null
+async function deletePage(page) {
+  let error, response = null
   const params = {
     TableName: "pages",
     Key: {
@@ -132,17 +132,17 @@ async function deletePage(pageId) {
     },
     conditionExpression: "title = :t",
     ExpressionAttributeValues: {
-      ":t": values.title, 
+      ":t": page.title,
     },
     ReturnValues:"UPDATED_NEW"
   }
   await documentClient.delete(params, (err, data) => {
     if(err) {
       error = true
-      console.log(`Unable to read the page ${pageTitle}. Error JSON: `, JSON.stringify(err, null, 2))
+      console.log(`Unable to read the page ${page.title}. Error JSON: `, JSON.stringify(err, null, 2))
     } else {
       error = false
-      console.log(`Page ${pageTitle} deleted: `, JSON.stringify(data))
+      console.log(`Page ${page.title} deleted: `, JSON.stringify(data))
     }
     response = data
   })
