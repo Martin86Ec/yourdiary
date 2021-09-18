@@ -1,4 +1,5 @@
 "use strict"
+
 require("mocha")
 const { assert } = require("chai")
 const sinon = require("sinon")
@@ -15,7 +16,7 @@ describe("pageModel", async () => {
     assert.isFalse(error, "error should be false")
   })
   it("#getPage should return a two key object", async () => {
-    let { error, response } = await pageModel.readPage("test title", "content")
+    let { error, response } = await pageModel.readPage("test title", {})
     assert.isNotNull(response, "should not be null")
     assert.isFalse(error, "error should be false")
   })

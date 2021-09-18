@@ -10,6 +10,8 @@ describe("pageModel", () => {
       title: "title test 1",
       content: "content test 1"
     }
+
+    await pageModel.createTable()
     const result = await pageModel.createPage(data)
 
     assert.isNotNull(result)

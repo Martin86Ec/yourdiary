@@ -1,45 +1,96 @@
 "use strict"
 
-const { exec } = require("child_process")
+const { exec, spawn } = require("child_process")
 const args = process.argv.slice(2)
+const chalk = require("chalk")
+const boxen = require("boxen")
 
-exec("docker ps -a | grep yourdiary_dynamodb", (error, stdout, stderror) => {
-  console.group()
-  if(error || stderror) {
-    console.log("Docker container not found, creating an instance: ")
-    exec("docker run -d --name yourdiary_dynamodb -p 8000:8000 amazon/dynamodb-local", (error, stdout, stderror) => {
-      if(error || stderror) {
-        console.log("Cannot create docker container")
-        console.groupEnd()
-        return
-      }
-      console.log("Container created")
-      console.groupEnd()
-    })
-  } else {
-    console.log("Container already exists, starting: \n", stdout)
-    exec("docker start yourdiary_dynamodb", (error, stdout, stderror) => {
-      if(error || stderror) {
-        console.log("Cannot start docker container, maybe it is already started.")
-      }
-    })
+start()
+verifyArgs()
+
+function start() {
+  const titleBox = boxen("Tests", { 
+    padding: 1, margin: 1, 
+    borderStyle: "doubleSingle", 
+    borderColor: "green",
+    title: "YourDiary"
+  })
+  console.log(titleBox)
+}
+
+function verifyArgs() {
+  let started = false
+
+  if(args.length === 0) {
+    console.group()
+    console.log("Usage: test <option>\n")
+    console.log("Where <option> is:")
+    console.log("\tunit --unit -u")
+    console.log("\tintegration --integration -i")
     console.groupEnd()
-  }
-})
-
-console.group()
-args.forEach((arg) => {
-  if(arg === '-u' || arg === '--unit' ) {
-    console.log("Starting unit tests: \n") 
-    exec("./node_modules/.bin/mocha ./tests/unit/*", (error, stdout) => {
-      console.log(stdout)
-    })
-  } else if(arg === '-i' || arg === '--integration') {
-    console.log("Starting integration tests: \n") 
-    exec("./node_modules/.bin/mocha ./tests/integration/*")
+  } else if(args.length === 1){
+    if(args[0] === "--unit" || args[0] === "-u") {
+      startUnitTests()
+    } else if(args[0] === "--integration" || args[0] === "-i") {
+      started = startContainer()
+      startIntegrationTests(true) 
+    } else { 
+      console.group()
+      console.log(`<option>: ${args[0]} is not recognized. Available options: `)
+      console.log("\tunit --unit -u")
+      console.log("\tintegration --integration -i")
+      console.groupEnd()
+    }
   } else {
-    console.log("no option passed.")
-    console.log("Allowed options: \n -u | --u  unit tests \n -i | --integration  integration tests")
+      console.group()
+      console.log("Too many options. Please, use only one: ")
+      console.log("\tunit --unit -u")
+      console.log("\tintegration --integration -i")
+      console.groupEnd()
   }
-})
-console.groupEnd()
+}
+
+function startContainer() {
+  console.group()
+  console.log(chalk.blue("Verifying containers"))
+  exec("docker ps -a | grep yourdiary_dynamodb", (error, stdout, stderr) => {
+    if(error || stderr) {
+      console.log(chalk.blue("\tyourdiary_dynamodb: "), chalk.red("container not found"))
+      console.log(chalk.gray("\tattempting to create a new container..."))
+      exec("docker run -d --name yourdiary_dynamodb -p 8000:8000 amazon/dynamodb-local", (error, stdout, stderr) => {
+        if(error || stderr) {
+          console.log(chalk.blue("\tyourdiary_dynamodb: "), chalk.red("cannot create the container"))
+          console.log(chalk.red("Tests canceled"))
+          groupEnd()
+          return
+        }
+        console.log(chalk.blue("\tyourdiary_dynamodb: "), chalk.green("created"))
+      })
+    } else {
+      console.log(chalk.blue("\tyourdiary_dynamodb: "), chalk.green("container found"))
+      console.log(chalk.gray("\tattempting to start the found container..."))
+      exec("docker start yourdiary_dynamodb", (error, stdout, stderr) => {
+        if(error || stderr) {
+          console.log(chalk.blue("\tyourdiary_dynamodb: ", chalk.red("cannot start the container")))
+          console.groupEnd()
+          return
+        }
+        console.log(chalk.blue("\tyourdiary_dynamodb: "), chalk.green("container started"))
+      })
+    }
+  })
+  console.groupEnd()
+}
+
+
+function startUnitTests() {
+  spawn("./node_modules/.bin/mocha", ["tests/unit/*/*"], { stdio: "inherit" })
+}
+
+function startIntegrationTests(started) {
+  if(!started) {
+    return
+  }
+
+  spawn("./node_modules/.bin/mocha", ["tests/integration/*/*"], { stdio: "inherit" })
+}

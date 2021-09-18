@@ -59,10 +59,10 @@ async function createPage(page) {
   await documentClient.put(params, (err, data) => {
     if(err){
       error = true
-      console.log(`Unable to create the page ${page.title}. Error JSON: `, JSON.stringify(err, null, 2))
+      console.log(`Unable to create the page ${params.Item.title}. Error JSON: `, JSON.stringify(err, null, 2))
     } else {
       error = false
-      console.log(`Page ${page.title} created.`)
+      console.log(`Page ${params.Item.title} created.`)
     }
     response = data
   })
@@ -151,6 +151,7 @@ async function deletePage(page) {
 }
 
 module.exports = {
+  createTable,
   createPage,
   readPage,
   updatePage,

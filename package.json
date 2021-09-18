@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "test": "node .test.js",
     "utest": "node_modules/.bin/mocha tests/unit/*",
     "itest": "$(docker run -d --name yourdiary_dynamodb -p 8000:8000 amazon/dynamodb-local || docker start your_diary || echo 'already started') && node_modules/.bin/mocha tests/integration/*"
   },
@@ -11,7 +12,9 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "boxen": "^5.1.2",
     "chai": "^4.3.4",
+    "chalk": "^4.1.2",
     "mocha": "^9.1.1",
     "nodemon": "^2.0.12",
     "proxyquire": "^2.1.3",
