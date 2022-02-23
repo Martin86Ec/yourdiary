@@ -10,7 +10,7 @@ verifyArgs()
 
 function start() {
   const titleBox = boxen("Tests", { 
-    padding: 1, margin: 1, 
+    padding: 1, margin: 67, 
     borderStyle: "doubleSingle", 
     borderColor: "green",
     title: "YourDiary"
